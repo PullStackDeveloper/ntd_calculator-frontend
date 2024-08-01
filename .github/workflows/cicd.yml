@@ -24,12 +24,7 @@ jobs:
         run: yarn install
 
       - name: Build
-        env:
-          NEXT_PUBLIC_USER_API: ${{ secrets.NEXT_PUBLIC_USER_API }}
-          NEXT_PUBLIC_OPERATION_API: ${{ secrets.NEXT_PUBLIC_OPERATION_API }}
-          NEXT_PUBLIC_RECORD_API: ${{ secrets.NEXT_PUBLIC_RECORD_API }}
-          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+    
         run: yarn run build
 
       - name: Generate Deployment Package
