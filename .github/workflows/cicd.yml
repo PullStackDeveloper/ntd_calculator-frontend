@@ -18,14 +18,13 @@ jobs:
           node-version: 20
 
       - name: Install Yarn
-        run: npm install -g yarn
         
       - name: Install Dependencies
-        run: yarn install
+        run: npm install
 
       - name: Build
     
-        run: yarn run build
+        run: npm run build
 
       - name: Generate Deployment Package
         run: zip -r app-build.zip . -x '*.git*'
