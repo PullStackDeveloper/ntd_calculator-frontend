@@ -31,7 +31,7 @@ jobs:
       - name: Pull Image from Docker Hub
         run: docker pull fernando0988/ntd_calculator-frontend:latest
       - name: Delete Container
-        run: docker rm -f nextjs-ntd_calculator-frontend
+        run: docker rm -f nextjs-ntd_calculator-frontend-container
       - name: Run Container
         run: docker run -d -p 3000:3000 --name nextjs-ntd_calculator-frontend-container fernando0988/ntd_calculator-frontend:latest
 
