@@ -12,12 +12,7 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
       - name: Setup Environment Variables
-        run:
-          echo "NEXT_PUBLIC_USER_API=${{ secrets.NEXT_PUBLIC_USER_API }}" >> .env
-          echo "NEXT_PUBLIC_OPERATION_API=${{ secrets.NEXT_PUBLIC_OPERATION_API }}" >> .env
-          echo "NEXT_PUBLIC_RECORD_API=${{ secrets.NEXT_PUBLIC_RECORD_API }}" >> .env
-          echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env
-          echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env
+        run: echo "NEXT_PUBLIC_USER_API=${{ secrets.NEXT_PUBLIC_USER_API }}" >> .env && echo "NEXT_PUBLIC_OPERATION_API=${{ secrets.NEXT_PUBLIC_OPERATION_API }}" >> .env && echo "NEXT_PUBLIC_RECORD_API=${{ secrets.NEXT_PUBLIC_RECORD_API }}" >> .env &&  echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env && echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env
       - name: Build Docker
         run: docker build -t fernando0988/ntd_calculator-frontend .
       - name: Login docker hub
