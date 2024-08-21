@@ -16,7 +16,7 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
     const [firstOperand, setFirstOperand] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [currentOperation, setCurrentOperation] = useState<string>(''); // Histórico da operação atual
-    const [replaceDisplay, setReplaceDisplay] = useState(false); // Novo estado para controlar a substituição do display
+    const [replaceDisplay, setReplaceDisplay] = useState(false); // Estado para controlar a substituição do display
 
     const operatorMapping: { [key: string]: string } = {
         '+': 'addition',
@@ -69,6 +69,25 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
             case 'rnd':
                 await performOperation('rnd');
                 break;
+            case '-':
+                // Permite número negativo se não houver número atual ou se estiver substituindo o display
+                if (displayValue === '0' || replaceDisplay) {
+                    setDisplayValue('-');
+                    setCurrentOperation('-');
+                    setReplaceDisplay(false);
+                } else if (operator && firstOperand !== null) {
+                    await performOperation(operator, displayValue);
+                    setOperator(value);
+                    setWaitingForSecondOperand(true);
+                    setDisplayValue(displayValue); // Mantém o valor atual ao invés de resetar para '0'
+                    setCurrentOperation(prev => prev + ' ' + value + ' '); // Atualiza a operação atual
+                } else {
+                    setOperator(value);
+                    setWaitingForSecondOperand(true);
+                    setDisplayValue(displayValue); // Mantém o valor atual
+                    setCurrentOperation(prev => prev + ' ' + value + ' '); // Atualiza a operação atual
+                }
+                break;
             case '=':
                 if (operator && firstOperand !== null) {
                     await performOperation(operator, displayValue);
@@ -77,7 +96,7 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
                 setReplaceDisplay(true); // Configura para substituir o display na próxima entrada
                 break;
             default:
-                if (['+', '-', '*', '/'].includes(value)) {
+                if (['+', '*', '/'].includes(value)) {
                     if (firstOperand === null) {
                         setFirstOperand(displayValue);
                     } else if (operator) {
