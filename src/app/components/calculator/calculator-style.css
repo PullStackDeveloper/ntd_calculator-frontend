@@ -1,3 +1,19 @@
 .calculators-button{
   width: 100%;
 }
+.history {
+  margin-top: 20px;
+}
+
+.history ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.history ul li {
+  background-color: #f8f9fa;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 5px;
+  font-family: monospace;
+}

@@ -15,6 +15,7 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
     const [operator, setOperator] = useState<string | null>(null);
     const [firstOperand, setFirstOperand] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
+    const [history, setHistory] = useState<string[]>([]); // Novo estado para o histórico
 
     const operatorMapping: { [key: string]: string } = {
         '+': 'addition',
@@ -75,7 +76,7 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
                     }
                     setOperator(value);
                     setWaitingForSecondOperand(true);
-                    setDisplayValue('0');
+                    setDisplayValue(displayValue); // Mantém o valor atual ao invés de resetar para '0'
                 }
                 break;
         }
@@ -119,6 +120,9 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
             setOperator(null);
             setWaitingForSecondOperand(false);
 
+            // Adiciona a operação ao histórico
+            setHistory([...history, `${firstOperand} ${operator} ${secondOperand} = ${result.value}`]);
+
             // Chama a função passada via props para notificar a conclusão da operação
             onOperationComplete();
         } catch (error) {
@@ -131,6 +135,7 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
         setFirstOperand(null);
         setOperator(null);
         setWaitingForSecondOperand(false);
+        setHistory([]); // Reseta o histórico
     };
 
     const buttons = [
@@ -155,6 +160,14 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
                     </div>
                 ))}
             </div>
+            {}
+            {/*<div className="history mt-4">*/}
+            {/*    {history.map((item, index) => (*/}
+            {/*        <div key={index} className="history-item">*/}
+            {/*            {item}*/}
+            {/*        </div>*/}
+            {/*    ))}*/}
+            {/*</div>*/}
             <LoginModal show={showModal} />
         </>
     );
