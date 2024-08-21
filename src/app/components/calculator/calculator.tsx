@@ -15,7 +15,8 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
     const [operator, setOperator] = useState<string | null>(null);
     const [firstOperand, setFirstOperand] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
-    const [history, setHistory] = useState<string[]>([]); // Novo estado para o histórico
+    const [currentOperation, setCurrentOperation] = useState<string>(''); // Histórico da operação atual
+    const [replaceDisplay, setReplaceDisplay] = useState(false); // Novo estado para controlar a substituição do display
 
     const operatorMapping: { [key: string]: string } = {
         '+': 'addition',
@@ -35,12 +36,17 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
     };
 
     const handleNumber = (number: string) => {
-        if (waitingForSecondOperand) {
+        if (replaceDisplay) {
+            setDisplayValue(number);
+            setReplaceDisplay(false);
+        } else if (waitingForSecondOperand) {
             setDisplayValue(number);
             setWaitingForSecondOperand(false);
         } else {
             setDisplayValue((displayValue === '0') ? number : displayValue + number);
         }
+
+        setCurrentOperation(prev => prev + number); // Atualiza a operação atual
     };
 
     const handleOperator = async (value: string) => {
@@ -54,6 +60,7 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
             case '.':
                 if (!displayValue.includes('.')) {
                     setDisplayValue(displayValue + '.');
+                    setCurrentOperation(prev => prev + '.');
                 }
                 break;
             case 'sqrt':
@@ -66,6 +73,8 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
                 if (operator && firstOperand !== null) {
                     await performOperation(operator, displayValue);
                 }
+                setCurrentOperation(''); // Reseta a operação atual após o cálculo
+                setReplaceDisplay(true); // Configura para substituir o display na próxima entrada
                 break;
             default:
                 if (['+', '-', '*', '/'].includes(value)) {
@@ -77,6 +86,7 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
                     setOperator(value);
                     setWaitingForSecondOperand(true);
                     setDisplayValue(displayValue); // Mantém o valor atual ao invés de resetar para '0'
+                    setCurrentOperation(prev => prev + ' ' + value + ' '); // Atualiza a operação atual
                 }
                 break;
         }
@@ -89,6 +99,7 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
             }
             return prev.slice(0, -1);
         });
+        setCurrentOperation(prev => prev.slice(0, -1)); // Remove o último caractere da operação atual
     };
 
     const performOperation = async (operation: string, secondOperand: string | null = null) => {
@@ -116,12 +127,17 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
 
             const result = await response.json();
             setDisplayValue(result.value.toString());
+
+            // Substitui o último número pelo resultado da operação
+            setCurrentOperation(prev => {
+                const parts = prev.trim().split(' ');
+                parts[parts.length - 1] = result.value.toString();
+                return parts.join(' ');
+            });
+
             setFirstOperand(null);
             setOperator(null);
             setWaitingForSecondOperand(false);
-
-            // Adiciona a operação ao histórico
-            setHistory([...history, `${firstOperand} ${operator} ${secondOperand} = ${result.value}`]);
 
             // Chama a função passada via props para notificar a conclusão da operação
             onOperationComplete();
@@ -135,7 +151,7 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
         setFirstOperand(null);
         setOperator(null);
         setWaitingForSecondOperand(false);
-        setHistory([]); // Reseta o histórico
+        setCurrentOperation(''); // Reseta a operação atual
     };
 
     const buttons = [
@@ -148,7 +164,7 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
 
     return (
         <>
-            <CalculatorDisplay value={displayValue} />
+            <CalculatorDisplay value={displayValue} history={currentOperation} />
             <div className="container">
                 {buttons.map((row, rowIndex) => (
                     <div key={rowIndex} className="row justify-content-center">
@@ -160,14 +176,6 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
                     </div>
                 ))}
             </div>
-            {}
-            {/*<div className="history mt-4">*/}
-            {/*    {history.map((item, index) => (*/}
-            {/*        <div key={index} className="history-item">*/}
-            {/*            {item}*/}
-            {/*        </div>*/}
-            {/*    ))}*/}
-            {/*</div>*/}
             <LoginModal show={showModal} />
         </>
     );

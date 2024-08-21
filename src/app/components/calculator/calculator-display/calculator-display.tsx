@@ -2,12 +2,14 @@ import React from 'react';
 
 interface DisplayProps {
     value: string;
+    history: string;
 }
 
-const CalculatorDisplay: React.FC<DisplayProps> = ({ value }) => {
+const CalculatorDisplay: React.FC<DisplayProps> = ({ value, history }) => {
     return (
-        <div className="form-control mb-2" style={{ fontSize: '2em', height: '60px' }}>
-            {value}
+        <div className="calculator-display">
+            <div className="calculator-history">{history}</div> {/* Exibição do histórico da operação atual */}
+            <div className="calculator-value">{value}</div>
         </div>
     );
 };

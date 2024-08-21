@@ -5,15 +5,25 @@
   margin-top: 20px;
 }
 
-.history ul {
-  list-style-type: none;
-  padding: 0;
+.calculator-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  background-color: #fff;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 20px;
 }
 
-.history ul li {
-  background-color: #f8f9fa;
-  padding: 10px;
-  margin: 5px 0;
-  border-radius: 5px;
-  font-family: monospace;
+.calculator-history {
+  font-size: 0.8em;
+  color: #888;
+  margin-bottom: 5px;
 }
+
+.calculator-value {
+  font-size: 2em;
+  font-weight: bold;
+}
+
