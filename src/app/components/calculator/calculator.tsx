@@ -50,6 +50,13 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
     };
 
     const handleOperator = async (value: string) => {
+        if (operator && waitingForSecondOperand) {
+            // Substitui o operador anterior pelo novo
+            setOperator(value);
+            setCurrentOperation(prev => prev.slice(0, -3) + ' ' + value + ' '); // Remove o último operador e adiciona o novo
+            return;
+        }
+
         switch (value) {
             case 'C':
                 resetCalculator();
@@ -69,25 +76,6 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
             case 'rnd':
                 await performOperation('rnd');
                 break;
-            case '-':
-                // Permite número negativo se não houver número atual ou se estiver substituindo o display
-                if (displayValue === '0' || replaceDisplay) {
-                    setDisplayValue('-');
-                    setCurrentOperation('-');
-                    setReplaceDisplay(false);
-                } else if (operator && firstOperand !== null) {
-                    await performOperation(operator, displayValue);
-                    setOperator(value);
-                    setWaitingForSecondOperand(true);
-                    setDisplayValue(displayValue); // Mantém o valor atual ao invés de resetar para '0'
-                    setCurrentOperation(prev => prev + ' ' + value + ' '); // Atualiza a operação atual
-                } else {
-                    setOperator(value);
-                    setWaitingForSecondOperand(true);
-                    setDisplayValue(displayValue); // Mantém o valor atual
-                    setCurrentOperation(prev => prev + ' ' + value + ' '); // Atualiza a operação atual
-                }
-                break;
             case '=':
                 if (operator && firstOperand !== null) {
                     await performOperation(operator, displayValue);
@@ -96,7 +84,7 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
                 setReplaceDisplay(true); // Configura para substituir o display na próxima entrada
                 break;
             default:
-                if (['+', '*', '/'].includes(value)) {
+                if (['+', '-', '*', '/'].includes(value)) {
                     if (firstOperand === null) {
                         setFirstOperand(displayValue);
                     } else if (operator) {
@@ -108,6 +96,16 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
                     setCurrentOperation(prev => prev + ' ' + value + ' '); // Atualiza a operação atual
                 }
                 break;
+        }
+    };
+
+    const handleToggleSign = () => {
+        if (displayValue.startsWith('-')) {
+            setDisplayValue(displayValue.slice(1));
+            setCurrentOperation(prev => prev.slice(1));
+        } else {
+            setDisplayValue('-' + displayValue);
+            setCurrentOperation(prev => '-' + prev);
         }
     };
 
@@ -178,7 +176,8 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
         ['7', '8', '9', '+'],
         ['4', '5', '6', '-'],
         ['1', '2', '3', '*'],
-        ['rnd', '0', '=', '/']
+        ['rnd', '0', '=', '/'],
+        ['+/-'] // Adiciona o botão para alternar o sinal
     ];
 
     return (
@@ -186,10 +185,14 @@ const Calculator: React.FC<CalculatorProps> = ({ token, onOperationComplete }) =
             <CalculatorDisplay value={displayValue} history={currentOperation} />
             <div className="container">
                 {buttons.map((row, rowIndex) => (
-                    <div key={rowIndex} className="row justify-content-center">
+                    <div key={rowIndex} className="row justify-content-end">
                         {row.map((value, buttonIndex) => (
                             <div key={buttonIndex} className="col-3 text-center">
-                                <CalculatorButton value={value} onClick={() => handleButtonClick(value)} />
+                                {value === '+/-' ? (
+                                    <CalculatorButton value={value} onClick={handleToggleSign} />
+                                ) : (
+                                    <CalculatorButton value={value} onClick={() => handleButtonClick(value)} />
+                                )}
                             </div>
                         ))}
                     </div>
